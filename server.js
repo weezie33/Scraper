@@ -68,16 +68,12 @@ app.get("/scrape", function(req, res) {
           .find('h2')
           .text();
        result.imgLink = $(this)
-//           .find('.topics-sec-item-cont')
-//           .find('a')
-//           .attr('href');
           .find('.img-responsive')
           .attr('src');
        result.text = $(this)
           .find('.topics-sec-item-p')
           .text();
        result.img = $(this)
-          // .find('.topics-sec-item-img')
           .find('.img-responsive')
           .attr('src');
 
@@ -95,7 +91,7 @@ app.get("/scrape", function(req, res) {
     });
 
     // Send a message to the client
-    res.send("Scrape Complete");
+    res.redirect(301, '/news')
   });
 });
 
@@ -114,6 +110,10 @@ app.get("/articles", function(req, res) {
       res.json(err);
     });
 });
+
+app.get("/", function(req, res) {
+  res.redirect(301, '/scrape')
+})
 
 app.get("/news", function(req, res) {
   db.Article.find({})
