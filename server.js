@@ -11,6 +11,7 @@ var cheerio = require("cheerio");
 // Require all models
 var db = require("./models");
 
+
 var PORT = 3000;
 
 // Initialize Express
@@ -47,22 +48,39 @@ mongoose.connect(MONGODB_URI);
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with axios
-  axios.get("http://www.echojs.com/").then(function(response) {
+  axios.get("https://www.aljazeera.com/news/").then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
 
     // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
+    $("div.topics-sec-item").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
-      // Add the text and href of every link, and save them as properties of the result object
+      // Add the text and href of every link, and save them as properties of the result object     
+    
+      result.articleUrl = $(this)
+          .find('.topics-sec-item-cont')
+          .find('a:nth-child(2n)')
+          .attr('href');
       result.title = $(this)
-        .children("a")
-        .text();
-      result.link = $(this)
-        .children("a")
-        .attr("href");
+          .find('.topics-sec-item-cont')
+          .find('h2')
+          .text();
+       result.imgLink = $(this)
+//           .find('.topics-sec-item-cont')
+//           .find('a')
+//           .attr('href');
+          .find('.img-responsive')
+          .attr('src');
+       result.text = $(this)
+          .find('.topics-sec-item-p')
+          .text();
+       result.img = $(this)
+          // .find('.topics-sec-item-img')
+          .find('.img-responsive')
+          .attr('src');
+
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -88,6 +106,7 @@ app.get("/articles", function(req, res) {
     .then(function(dbArticle) {
       // If we were able to successfully find Articles, send them back to the client
       res.json(dbArticle);
+      //res.render("news", {dbArticle});
       //res.render("index", {dbArticle});
     })
     .catch(function(err) {
@@ -96,6 +115,19 @@ app.get("/articles", function(req, res) {
     });
 });
 
+app.get("/news", function(req, res) {
+  db.Article.find({})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      //res.json(dbArticle);
+      res.render("news", {dbArticle});
+      //res.render("index", {dbArticle});
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+})
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {
   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...

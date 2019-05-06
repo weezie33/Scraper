@@ -1,0 +1,17 @@
+
+{{#each dbArticle}}
+<div data-_id={{"_id"}} class="card" id="articles">
+    <div class="card-header">
+        <h3>
+            <a class="article-link" target="_blank" rel="noopener noreferrer" href="https://www.aljazeera.com{{this.articleUrl}}">{{this.title}}</a>
+            
+        </h3>
+    </div>
+    <div class="card-body">
+        {{this.text}}
+        
+  
+    </div>
+    <div id="notes"></div>
+</div>
+{{/each}}
